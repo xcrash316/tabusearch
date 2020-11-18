@@ -108,7 +108,7 @@ public class TabuSearch {
                 if (mat[i][i]==1) {
                     colission++;
                 }
-            }
+            
             colissionUni=colissionUni+obtenerNoColisiones(colission);
             colission=0;      
         }
