@@ -1,7 +1,9 @@
+
 package tabusearch;
 
 import java.util.Arrays;
 import java.util.Scanner;
+
 
 public class TabuSearch {
     private static int matrizPer[][]= new int[21][5];
@@ -70,13 +72,41 @@ public class TabuSearch {
          
           for (int i=0;i<mat.length;i++) {
                for (int j = mat[0].length-1; j >=i; j--) {
-                    if ( mat[i][j]==1) {
+                    if (mat[i][j]==1) {
                        colission++;
                    }
               } 
               colissionUni=colissionUni+obtenerNoColisiones(colission);
               colission=0;
         }
+          
+          
+          for (int i=0; i<mat.length; i++) {
+            int j=mat.length;
+            for (int k = i; k >0; k--) {
+                //System.out.println((j-k)+" - "+(i-k));
+                if (mat[j-k][i-k]==1) {
+                      colission++;
+                 }
+               }  
+             colissionUni=colissionUni+obtenerNoColisiones(colission);
+             colission=0;
+           }
+          
+           for (int i=0; i<mat.length; i++) {
+            int j=mat.length;
+            for (int k = i; k >0; k--) {
+                if (mat[i-k][j-k]==1) {
+                    colission++;
+                }
+            }
+            colissionUni=colissionUni+obtenerNoColisiones(colission);
+            colission=0;      
+        }
+           
+        
+          
+          
        /*System.out.println("Numero de Colisiones : "+colissionUni); 
        pintarMatriz(mat);
        */
