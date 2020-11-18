@@ -1,0 +1,226 @@
+package tabusearch;
+
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class TabuSearch {
+    private static int matrizPer[][]= new int[21][5];
+    private static int[][] a = {{0,0,0,0,0,0,0},
+                     {0,0,0,0,0,0,0},
+                     {0,0,0,0,0,0,0},
+                     {0,0,0,0,0,0,0},
+                     {0,0,0,0,0,0,0},
+                     {0,0,0,0,0,0,0},
+                     {0,0,0,0,0,0,0},};
+
+    public static void main(String[] args) {
+       int noColisiones=1;
+       Scanner teclado = new Scanner(System.in);
+              int initialSolution[]={3,4,2,5,6,0,1};
+               noColisiones=getColissions(a ,initialSolution);
+               while (noColisiones!=0) {            
+              obtenerOptimo(initialSolution);
+	      System.out.print("Introduce la Permutacion objetivo: ");
+	      int nuevaSeleccion= Integer.parseInt(teclado.nextLine());
+                   decrementarlistaTabo(nuevaSeleccion);
+                   if (matrizPer[nuevaSeleccion-1][4]==0) {
+                       agregarListaTaboo(nuevaSeleccion);
+                       initialSolution=permutacion(nuevaSeleccion, initialSolution);
+                       System.out.println("Nueva Solucion: ");
+                       pintarSolucion(initialSolution);
+                       noColisiones=getColissions(a, initialSolution);
+                       System.out.println("No colisiones :"+ noColisiones); 
+                   }else{
+                       System.out.println("Esta seleccion esta bloqueada");
+                       aumentarlistaTabo(nuevaSeleccion);
+                   }
+               }
+               System.out.println("Seleccion mas optima : ");
+               pintarSolucion(initialSolution);  
+       }
+    
+    public static int getColissions(int[][] mat, int[] initialSolution){   
+       int colissionUni=0; 
+       int colission=0;
+       limpiarMatrizA();
+      /* System.out.println("-------------Matriz resultante de Realizar Permutaciones--------------------");
+       pintarSolucion(initialSolution);
+       */
+       mat=evaluateMatriz(mat, initialSolution);
+       for (int i=0;i<mat.length;i++) {
+               for (int j=0;j<=i;j++) {
+                   if (mat[i-j][j]==1) {
+                       colission++;   
+                    }
+                     //System.out.println(mat[i-j][j]+" ("+(i-j)+","+(j)+")"+ " col" + colission);
+               } 
+                 colissionUni=colissionUni+obtenerNoColisiones(colission);
+                 colission=0;
+         }
+       
+         for (int i=0;i<mat.length;i++) {
+                for (int j=0;j<mat.length-i-1;j++) { 
+                    if(mat[mat.length-j-1][j+i+1]==1){
+                          colission++;   
+                    }
+           }
+              colissionUni=colissionUni+obtenerNoColisiones(colission);
+              colission=0;
+        }
+         
+          for (int i=0;i<mat.length;i++) {
+               for (int j = mat[0].length-1; j >=i; j--) {
+                    if ( mat[i][j]==1) {
+                       colission++;
+                   }
+              } 
+              colissionUni=colissionUni+obtenerNoColisiones(colission);
+              colission=0;
+        }
+       /*System.out.println("Numero de Colisiones : "+colissionUni); 
+       pintarMatriz(mat);
+       */
+      return colissionUni;  
+    }
+    
+    public static int[][] evaluateMatriz(int[][] mat, int[] inicialSolution){
+         for (int i = 0; i < inicialSolution.length; i++) {
+            mat[i][inicialSolution[i]]=1;
+        }
+        return mat;
+    }
+    
+    public static int[][] obtenerOptimo(int[] solutionUniversal){     
+      //pintarSolucion(solutionUniversal);
+      int[]solution= new int[solutionUniversal.length];
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[0][0]=1; matrizPer[0][1]=1; matrizPer[0][2]=2; matrizPer[0][3]=getColissions(a,permutar(matrizPer[0][1],matrizPer[0][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[1][0]=2; matrizPer[1][1]=1; matrizPer[1][2]=3; matrizPer[1][3]=getColissions(a,permutar(matrizPer[1][1],matrizPer[1][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[2][0]=3; matrizPer[2][1]=1; matrizPer[2][2]=4; matrizPer[2][3]=getColissions(a,permutar(matrizPer[2][1],matrizPer[2][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[3][0]=4; matrizPer[3][1]=1; matrizPer[3][2]=5; matrizPer[3][3]=getColissions(a,permutar(matrizPer[3][1],matrizPer[3][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[4][0]=5; matrizPer[4][1]=1; matrizPer[4][2]=6; matrizPer[4][3]=getColissions(a,permutar(matrizPer[4][1],matrizPer[4][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[5][0]=6; matrizPer[5][1]=1; matrizPer[5][2]=7; matrizPer[5][3]=getColissions(a,permutar(matrizPer[5][1],matrizPer[5][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[6][0]=7; matrizPer[6][1]=2; matrizPer[6][2]=3; matrizPer[6][3]=getColissions(a,permutar(matrizPer[6][1],matrizPer[6][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[7][0]=8; matrizPer[7][1]=2; matrizPer[7][2]=4; matrizPer[7][3]=getColissions(a,permutar(matrizPer[7][1],matrizPer[7][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[8][0]=9; matrizPer[8][1]=2; matrizPer[8][2]=5; matrizPer[8][3]=getColissions(a,permutar(matrizPer[8][1],matrizPer[8][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[9][0]=10; matrizPer[9][1]=2; matrizPer[9][2]=6; matrizPer[9][3]=getColissions(a,permutar(matrizPer[9][1],matrizPer[9][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[10][0]=11; matrizPer[10][1]=2; matrizPer[10][2]=7; matrizPer[10][3]=getColissions(a,permutar(matrizPer[10][1],matrizPer[10][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[11][0]=12; matrizPer[11][1]=3; matrizPer[11][2]=4; matrizPer[11][3]=getColissions(a,permutar(matrizPer[11][1],matrizPer[11][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[12][0]=13; matrizPer[12][1]=3; matrizPer[12][2]=5; matrizPer[12][3]=getColissions(a,permutar(matrizPer[12][1],matrizPer[12][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[13][0]=14; matrizPer[13][1]=3; matrizPer[13][2]=6; matrizPer[13][3]=getColissions(a,permutar(matrizPer[13][1],matrizPer[13][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[14][0]=15; matrizPer[14][1]=3; matrizPer[14][2]=7; matrizPer[14][3]=getColissions(a,permutar(matrizPer[14][1],matrizPer[14][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[15][0]=16; matrizPer[15][1]=4; matrizPer[15][2]=5; matrizPer[15][3]=getColissions(a,permutar(matrizPer[15][1],matrizPer[15][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[16][0]=17; matrizPer[16][1]=4; matrizPer[16][2]=6; matrizPer[16][3]=getColissions(a,permutar(matrizPer[16][1],matrizPer[16][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[17][0]=18; matrizPer[17][1]=4; matrizPer[17][2]=7; matrizPer[17][3]=getColissions(a,permutar(matrizPer[17][1],matrizPer[17][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[18][0]=19; matrizPer[18][1]=5; matrizPer[18][2]=6; matrizPer[18][3]=getColissions(a,permutar(matrizPer[18][1],matrizPer[18][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[19][0]=20; matrizPer[19][1]=5; matrizPer[19][2]=7; matrizPer[19][3]=getColissions(a,permutar(matrizPer[19][1],matrizPer[19][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      matrizPer[20][0]=21; matrizPer[20][1]=6; matrizPer[20][2]=7; matrizPer[20][3]=getColissions(a,permutar(matrizPer[20][1],matrizPer[20][2], solution));
+      solution= regresarSolucion(solutionUniversal, solution);
+      System.out.println("----------------Tabla de Permutaciones---------------------------");
+      pintarMatriz(matrizPer);
+        
+       return matrizPer; 
+    }
+    
+    public static int[] permutar(int posA, int posB, int[]solution){
+        posA=posA-1;
+        posB=posB-1;
+        int getValA= solution[posA];
+        int getValB= solution[posB];
+        solution[posA]=getValB;
+        solution[posB]=getValA;
+              return solution;
+    }
+    
+    
+     public static int obtenerNoColisiones(int noReinas){
+      return (noReinas*(noReinas-1)/2);
+    }
+     
+     
+     public static void pintarMatriz(int mat[][]){
+         System.out.println("Alter \t Per1 \t Per2 \t Coli \t Tabu");
+         for(int i = 0; i < mat.length; i++){ 
+         	for(int j = 0; j < mat[i].length; j++){ 
+		System.out.print("  "+mat[i][j] + "\t");	// Imprime elemento 
+	    } 
+	        System.out.println();	// Imprime salto de línea 
+                System.out.println("______________________________________");
+         }  
+     }
+     
+     public static void limpiarMatrizA(){
+         for(int i = 0; i < a.length; i++){ 
+         	for(int j = 0; j < a[i].length; j++){ 
+		    a[i][j]=0;
+	    }    
+        }  
+     }
+     
+     public static void pintarSolucion(int[] solution){
+          String salida="";
+        for (int i = 0; i < solution.length; i++) {
+            salida+=solution[i]+1+"-";    
+        }
+        System.out.println(salida);
+        
+     }
+     
+     public static int[] regresarSolucion(int sol[],int sol2[]){
+         for (int i = 0; i < sol.length; i++) {
+             sol2[i]=sol[i];
+         }
+         return sol2;
+     }
+     
+     public static int[] permutacion(int indice,int[] solution ){
+         System.out.println("Elegiste: ");
+         System.out.println(matrizPer[indice-1][1]+" - "+matrizPer[indice-1][2]);
+         solution=permutar(matrizPer[indice-1][1], matrizPer[indice-1][2], solution);
+      return solution;    
+     }
+     
+     public static void agregarListaTaboo(int indice){
+         matrizPer[indice-1][4]=3;
+     }
+     
+     public static void decrementarlistaTabo(int indice){
+         for (int i = 0; i < matrizPer.length; i++) {
+             if (!(matrizPer[i][4]==0)) {
+                  int total= matrizPer[i][4];
+                  matrizPer[i][4]=total-1;
+             }
+         }   
+        
+     }
+      public static void aumentarlistaTabo(int indice){
+         for (int i = 0; i < matrizPer.length; i++) {
+             if (!(matrizPer[i][4]==0)) {
+                  int total= matrizPer[i][4];
+                  matrizPer[i][4]=total+1;
+             }
+         }   
+     }
+    
+}
